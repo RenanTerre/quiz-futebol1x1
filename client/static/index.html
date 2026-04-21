@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Futebol</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+
+#app {
+    text-align: center;
+    width: 90%;
+    max-width: 700px;
+}
+
+#question {
+    font-size: 30px;
+    margin-bottom: 30px;
+}
+
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.option-btn {
+    padding: 20px;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: white;
+    transition: 0.2s;
+}
+
+.option-btn:nth-child(1) { background: #e21b3c; }
+.option-btn:nth-child(2) { background: #1368ce; }
+.option-btn:nth-child(3) { background: #d89e00; }
+.option-btn:nth-child(4) { background: #26890c; }
+
+.option-btn:hover {
+    transform: scale(1.05);
+}
+
+.correct { background: #00ff9f !important; color: black; }
+.wrong { background: #ff4d4d !important; }
+
+/* BOTÃO */
+#next-btn {
+    margin-top: 20px;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#00ff9f,#00c9ff);
+    color: black;
+    border: none;
+    cursor: pointer;
+}
+
+#next-btn:disabled {
+    background: gray;
+}
+
+
+#result-screen {
+    text-align: center;
+}
+
+#result-box {
+    background: rgba(255,255,255,0.05);
+    padding: 50px;
+    border-radius: 20px;
+}
+
+
+#result-box h2 {
+    font-size: 40px;
+    color: #00ff9f;
+}
+
+#final-score {
+    font-size: 60px;
+    margin: 20px 0;
+}
+
+
+#restart-btn {
+    padding: 20px;
+    width: 100%;
+    font-size: 20px;
+    border-radius: 15px;
+    border: none;
+    background: linear-gradient(135deg,#00ff9f,#00c9ff);
+    cursor: pointer;
+}
+
+#restart-btn:hover {
+    transform: scale(1.08);
+}
+
+.hidden { display: none; }
+</style>
+</head>
+
+<body>
+
+<div id="app">
+    <h1>QUEM É ESSE JOGADOR?</h1>
+    <h2 id="question">Conectando...</h2>
+    <div id="options" class="options"></div>
+    <button id="next-btn" onclick="nextQuestion()" disabled>PRÓXIMO</button>
+</div>
+
+<div id="result-screen" class="hidden">
+    <div id="result-box">
+        <h2>FIM DE JOGO</h2>
+        <div id="final-score">0</div>
+        <button id="restart-btn" onclick="location.reload()">JOGAR NOVAMENTE</button>
+    </div>
+</div>
+
+<!-- 🎧 SONS -->
+<audio id="win-sound" src="win.mp3"></audio>
+<audio id="lose-sound" src="lose.mp3"></audio>
+
+<script>
+let ws;
+let selected = null;
+let correctAnswer = null;
+let totalAcertos = 0;
+let totalPerguntas = 0;
+
+fetch("/api/create-room")
+.then(r => r.json())
+.then(data => {
+
+    ws = new WebSocket(`ws://${location.host}/ws?sala=${data.room_id}`);
+
+    ws.onopen = () => {
+        console.log("Conectado:", data.room_id);
+        ws.send(JSON.stringify({ action: "next" }));
+    };
+
+    ws.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+
+        if (data.type === "update") {
+            render(data.state);
+        }
+
+        if (data.type === "game_over") {
+            showResult();
+        }
+    };
+
+    ws.onerror = () => {
+        document.getElementById("question").innerText = "Erro na conexão 😬";
+    };
+
+});
+
+
+function render(state) {
+    selected = null;
+    correctAnswer = state.correct;
+    totalPerguntas++;
+
+    document.getElementById("question").innerText = state.question;
+
+    const div = document.getElementById("options");
+    div.innerHTML = "";
+
+    const letras = ["A","B","C","D"];
+
+    state.options.forEach((opt,i)=>{
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerText = `${letras[i]}) ${opt}`;
+
+        btn.onclick = ()=> selectOption(btn,opt);
+
+        div.appendChild(btn);
+    });
+
+    document.getElementById("next-btn").disabled = true;
+}
+
+function selectOption(button,opt){
+    if(selected) return;
+
+    selected = opt;
+
+    document.querySelectorAll(".option-btn").forEach(b=>b.disabled=true);
+
+    if(opt === correctAnswer){
+        button.classList.add("correct");
+        totalAcertos++;
+    } else {
+        button.classList.add("wrong");
+
+        document.querySelectorAll(".option-btn").forEach(b=>{
+            if(b.innerText.includes(correctAnswer)){
+                b.classList.add("correct");
+            }
+        });
+    }
+
+    document.getElementById("next-btn").disabled = false;
+}
+
+
+function nextQuestion(){
+    ws.send(JSON.stringify({action:"next"}));
+}
+
+
+function showResult(){
+    document.getElementById("app").classList.add("hidden");
+    document.getElementById("result-screen").classList.remove("hidden");
+
+    const final = totalAcertos;
+    const total = totalPerguntas;
+
+    const el = document.getElementById("final-score");
+
+    // 🎵 ESCOLHE SOM
+    const porcentagem = final / total;
+
+    const winSound = document.getElementById("win-sound");
+    const loseSound = document.getElementById("lose-sound");
+
+    if (porcentagem >= 0.7) {
+        winSound.currentTime = 0;
+        winSound.play();
+    } else {
+        loseSound.currentTime = 0;
+        loseSound.play();
+    }
+
+    let count = 0;
+
+    const interval = setInterval(()=>{
+        count++;
+        el.innerText = `${count}/${total}`;
+
+        if(count >= final){
+            clearInterval(interval);
+            el.innerText = `${final}/${total}`;
+        }
+    },50);
+}
+</script>
+
+</body>
+</html>
