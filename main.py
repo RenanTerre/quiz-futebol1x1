@@ -1,7 +1,11 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(__file__))
+
 from tornado.ioloop import IOLoop
 from tornado.web import Application, StaticFileHandler
 from server.handlers import CreateRoomHandler, GameWebSocket
-import os
 
 BASE_DIR = os.path.dirname(__file__)
 
@@ -15,6 +19,7 @@ app = Application([
 ])
 
 if __name__ == "__main__":
-    app.listen(8888)
-    print(" Rodando em http://localhost:8888")
+    PORT = 8888  # pode trocar se quiser
+    app.listen(PORT)
+    print(f" Rodando em http://localhost:{PORT}")
     IOLoop.current().start()
