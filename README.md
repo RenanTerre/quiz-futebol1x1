@@ -1,39 +1,45 @@
-# Quiz Futebol
+# Quiz Futebol 1X1
 
-Um quiz interativo sobre futebol com comunicação em tempo real via WebSocket.  
-Responda, desafie seu conhecimento e veja no final se você é craque ou só entrou pra completar o time.
-
-- 7 ou mais acertos → vitória  
-- 6 ou menos → derrota
+Um quiz interativo de futebol com **modo multiplayer em tempo real** usando WebSocket.
 
 ---
 
-## Funcionalidades
+## Como funciona
 
-- Perguntas dinâmicas sobre futebol  
-- Alternativas embaralhadas (sem padrão previsível)  
+- Dois jogadores entram na mesma sala
+- As perguntas aparecem simultaneamente
+- Quem acertar mais rápido acumula pontos
+- Primeiro a atingir a pontuação vence
+
+---
+
+## Resultado
+
+- **7 ou mais acertos** → Vitória (com som da vitória)
+- **6 ou menos** → Derrota (com som da derrota)
+
+---
+
+## 🚀 Funcionalidades
+
+- Perguntas dinâmicas sobre futebol   
 - Sistema de pontuação em tempo real  
-- Tela final com score animado  
-- Efeitos sonoros de vitória e derrota  
-- Comunicação via WebSocket  
+- Modo **PvP (2 jogadores)**  
+- Atualização de placar ao vivo  
+- Tela final com animação de score  
+- Sons de vitória e derrota  
+- Comunicação em tempo real com WebSocket  
 
 ---
 
 ## Tecnologias
 
-- Python (backend)  
-- WebSocket  
-- HTML, CSS e JavaScript (frontend)  
+- **Python** (backend)
+- **Tornado** (WebSocket server)
+- **HTML + CSS + JavaScript** (frontend)
 
 ---
 
-## 📂 Estrutura do projeto
+## Multiplayer (com ngrok)
 
-```
-client/     → Interface do jogo (HTML, CSS, JS, sons)
-server/     → Comunicação WebSocket e gerenciamento de salas
-game/       → Lógica do quiz
-core/       → Configurações e utilidades
-hardware/   → Simulação de hardware
-main.py     → Inicialização do servidor
-```
+Você pode jogar com outra pessoa usando um link público:
