@@ -13,13 +13,6 @@ Um quiz interativo de futebol com **modo multiplayer em tempo real** usando WebS
 
 ---
 
-## Resultado
-
-- **7 ou mais acertos** → Vitória (com som da vitória)
-- **6 ou menos** → Derrota (com som da derrota)
-
----
-
 ## Funcionalidades
 
 - Perguntas dinâmicas sobre futebol   
