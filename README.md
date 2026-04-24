@@ -20,7 +20,7 @@ Um quiz interativo de futebol com **modo multiplayer em tempo real** usando WebS
 
 ---
 
-## 🚀 Funcionalidades
+## Funcionalidades
 
 - Perguntas dinâmicas sobre futebol   
 - Sistema de pontuação em tempo real  
@@ -42,4 +42,3 @@ Um quiz interativo de futebol com **modo multiplayer em tempo real** usando WebS
 
 ## Multiplayer (com ngrok)
 
-Você pode jogar com outra pessoa usando um link público:
